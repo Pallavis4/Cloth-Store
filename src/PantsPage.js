@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Container, Row, Col, Card, Button, Form, Badge } from "react-bootstrap";
 import { useWishlist } from "./WishlistContext";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
+import { AuthContext } from "./context/AuthContext";
 
 import flaredpants from "./assets/pant1.png";
 import widelegpants from "./assets/pant2.png";
@@ -20,6 +21,7 @@ const colors = ["Black", "Beige", "Navy", "Olive", "White"];
 
 function PantsPage({ cart, setCart }) {
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
+  const { user } = useContext(AuthContext);
 
   const [selectedSize, setSelectedSize] = useState({});
   const [selectedColor, setSelectedColor] = useState({});
@@ -59,9 +61,8 @@ function PantsPage({ cart, setCart }) {
   };
 
   const handleToggleWishlist = (product) => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-
-    if (!isLoggedIn) {
+  
+    if (!user) {
       alert("Please log in or sign up to use the wishlist feature.");
       return;
     }

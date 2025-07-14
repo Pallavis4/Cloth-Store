@@ -1,56 +1,50 @@
-import React, { useState } from "react";
-import { Container, Row, Col, Card, Badge, Button, Form } from "react-bootstrap";
+import React, { useState, useContext } from "react";
+import { Container, Row, Col, Card, Button, Form, Badge } from "react-bootstrap";
 import { useWishlist } from "./WishlistContext";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
+import { AuthContext } from "./context/AuthContext";
 
-import Bodyconpink from "./assets/bodyconpink.webp";
-import gatheredbodycon from "./assets/gatheredbodycon.webp";
-import printedbodycon from "./assets/printedbodycon.webp";
-import ribbenbodycon from "./assets/ribbenbodycon.webp";
+// Add your image imports here
+import blackBodycon from "./assets/bodyconpink.webp";
+import redBodycon from "./assets/lace trimbody.webp";
+import greenBodycon from "./assets/asymentricbodycon.webp";
+import whiteBodycon from "./assets/gatheredbodycon.webp";
 
 const bodyconProducts = [
-  { id: 1, name: "Bodycon Dress", price: 1200, discount: 15, image: Bodyconpink, rating: 4.3, reviews: 25 },
-  { id: 2, name: "Gathered Bodycon", price: 1999, discount: 20, image: gatheredbodycon, rating: 4.5, reviews: 40 },
-  { id: 3, name: "Printed Bodycon", price: 1399, discount: 18, image: printedbodycon, rating: 4.4, reviews: 30 },
-  { id: 4, name: "Ribben Bodycon", price: 1799, discount: 10, image: ribbenbodycon, rating: 4.6, reviews: 35 },
+  { id: 11, name: "Elegant Black Bodycon", price: 1899, discount: 15, image: blackBodycon, rating: 4.8, reviews: 40 },
+  { id: 12, name: "Romantic Red Bodycon", price: 1799, discount: 10, image: redBodycon, rating: 4.6, reviews: 28 },
+  { id: 13, name: "Fresh Green Bodycon", price: 1599, discount: 20, image: greenBodycon, rating: 4.5, reviews: 34 },
+  { id: 14, name: "Chic White Bodycon", price: 1999, discount: 18, image: whiteBodycon, rating: 4.7, reviews: 50 },
 ];
 
 const sizes = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"];
-const colors = ["Red", "Black", "Blue", "Pink", "Green"];
+const pastelColors = ["Light Pink", "Powder Blue", "Off White", "Lavender", "Peach", "Red", "Olive"];
 
 function BodyconDressesPage({ cart, setCart }) {
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
+  const { user } = useContext(AuthContext);
 
   const [selectedSize, setSelectedSize] = useState({});
   const [selectedColor, setSelectedColor] = useState({});
   const [quantity, setQuantity] = useState({});
 
   const handleToggleWishlist = (product) => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-
-    if (!isLoggedIn) {
-      alert("Please log in or sign up to use the wishlist feature.");
+    if (!user) {
+      alert("Please log in to add to wishlist.");
       return;
     }
-  
+
     const isWishlisted = wishlist.some(item => item.id === product.id);
-    if (isWishlisted) {
-      removeFromWishlist(product.id);
-    } else {
-      addToWishlist(product);
-    }
+    isWishlisted ? removeFromWishlist(product.id) : addToWishlist(product);
   };
 
   const handleAddToCart = (product) => {
     const size = selectedSize[product.id] || sizes[0];
-    const color = selectedColor[product.id] || colors[0];
+    const color = selectedColor[product.id] || pastelColors[0];
     const qty = quantity[product.id] || 1;
 
     const existingIndex = cart.findIndex(
-      item =>
-        item.id === product.id &&
-        item.size === size &&
-        item.color === color
+      item => item.id === product.id && item.size === size && item.color === color
     );
 
     const newItem = { ...product, size, color, quantity: qty };
@@ -66,29 +60,24 @@ function BodyconDressesPage({ cart, setCart }) {
 
   const isInCart = (product) => {
     const size = selectedSize[product.id] || sizes[0];
-    const color = selectedColor[product.id] || colors[0];
+    const color = selectedColor[product.id] || pastelColors[0];
     return cart.some(
-      item =>
-        item.id === product.id &&
-        item.size === size &&
-        item.color === color
+      item => item.id === product.id && item.size === size && item.color === color
     );
   };
 
   return (
     <Container className="mt-4">
-      <h2 className="text-center text-primary">Explore Bodycon Dresses</h2>
+      <h2 className="text-center text-danger">Elegant Bodycon Dresses</h2>
       <Row>
         {bodyconProducts.map((product) => {
-          const size = selectedSize[product.id] || sizes[0];
-          const color = selectedColor[product.id] || colors[0];
-          const qty = quantity[product.id] || 1;
           const isWishlisted = wishlist.some(item => item.id === product.id);
           const inCart = isInCart(product);
 
           return (
             <Col key={product.id} md={3} className="mb-4">
-              <Card className="shadow position-relative">
+              <Card className="shadow position-relative" style={{ cursor: 'pointer' }}>
+                {/* Wishlist Icon */}
                 <div
                   onClick={() => handleToggleWishlist(product)}
                   style={{
@@ -99,13 +88,18 @@ function BodyconDressesPage({ cart, setCart }) {
                     color: isWishlisted ? "red" : "white",
                     cursor: "pointer",
                     textShadow: "0 0 5px rgba(0,0,0,0.6)",
-                    zIndex: 1,
+                    zIndex: 1
                   }}
                 >
                   {isWishlisted ? <FaHeart /> : <FaRegHeart />}
                 </div>
 
-                <Card.Img variant="top" src={product.image} alt={product.name} style={{ height: '350px', objectFit: 'cover' }} />
+                <Card.Img
+                  variant="top"
+                  src={product.image}
+                  alt={product.name}
+                  style={{ height: '350px', objectFit: 'cover' }}
+                />
                 <Card.Body>
                   <Card.Title>{product.name}</Card.Title>
                   <Card.Text>
@@ -115,52 +109,53 @@ function BodyconDressesPage({ cart, setCart }) {
                     <span>({product.reviews} Reviews)</span>
                   </Card.Text>
 
-                  {/* Size selection */}
-                  <Form.Group className="mb-3">
+                  {/* Size */}
+                  <Form.Group className="mb-2">
                     <Form.Label>Size:</Form.Label>
-                    <Form.Select
-                      value={size}
-                      onChange={(e) =>
-                        setSelectedSize({ ...selectedSize, [product.id]: e.target.value })
-                      }
-                    >
-                      {sizes.map((s) => (
-                        <option key={s} value={s}>Size: {s}</option>
+                    <div>
+                      {sizes.map((size) => (
+                        <Button
+                          key={size}
+                          variant={selectedSize[product.id] === size ? "dark" : "light"}
+                          onClick={() => setSelectedSize({ ...selectedSize, [product.id]: size })}
+                          className="me-2 mb-1"
+                        >
+                          {size}
+                        </Button>
                       ))}
-                    </Form.Select>
+                    </div>
                   </Form.Group>
 
-                  {/* Color options */}
-                  <Form.Group className="mb-3">
+                  {/* Color */}
+                  <Form.Group className="mb-2">
                     <Form.Label>Color:</Form.Label>
-                    <div className="d-flex">
-                      {colors.map((c) => (
+                    <div className="d-flex flex-wrap">
+                      {pastelColors.map((color) => (
                         <div
-                          key={c}
-                          onClick={() =>
-                            setSelectedColor({ ...selectedColor, [product.id]: c })
-                          }
+                          key={color}
+                          onClick={() => setSelectedColor({ ...selectedColor, [product.id]: color })}
                           style={{
-                            backgroundColor: c.toLowerCase(),
-                            width: "30px",
-                            height: "30px",
-                            borderRadius: "5px",
-                            marginRight: "8px",
-                            border: color === c ? "2px solid black" : "1px solid #ccc",
-                            cursor: "pointer",
+                            backgroundColor: color.toLowerCase().replace(/\s/g, ''),
+                            width: '30px',
+                            height: '30px',
+                            borderRadius: '5px',
+                            marginRight: '8px',
+                            marginBottom: '5px',
+                            border: selectedColor[product.id] === color ? '2px solid black' : '1px solid #ccc',
+                            cursor: 'pointer',
                           }}
                         />
                       ))}
                     </div>
                   </Form.Group>
 
-                  {/* Quantity input */}
+                  {/* Quantity */}
                   <Form.Group className="mb-3">
                     <Form.Label>Quantity:</Form.Label>
                     <Form.Control
                       type="number"
                       min="1"
-                      value={qty}
+                      value={quantity[product.id] || 1}
                       onChange={(e) =>
                         setQuantity({ ...quantity, [product.id]: parseInt(e.target.value) || 1 })
                       }

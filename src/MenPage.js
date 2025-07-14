@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useState , useContext } from "react";
 import { Container, Row, Col, Card, Button, Form } from "react-bootstrap";
 import { useWishlist } from "./WishlistContext";
+import { AuthContext } from "./context/AuthContext";
 
 
 function MenPage({ cart = [], setCart = () => {} }) {
   const { wishlist = [], addToWishlist, removeFromWishlist } = useWishlist();
 
+  const { user } = useContext(AuthContext);
 
   const [selectedSizes, setSelectedSizes] = useState({});
 
@@ -83,9 +85,7 @@ function MenPage({ cart = [], setCart = () => {} }) {
   ];
 
   const toggleWishlist = (product) => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-
-    if (!isLoggedIn) {
+    if (!user) {
       alert("Please log in or sign up to use the wishlist feature.");
       return;
     }

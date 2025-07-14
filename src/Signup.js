@@ -1,8 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { Form, Button, Container } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "./context/AuthContext"; // ✅ import AuthContext
 
 function Signup() {
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext); // ✅ get login function
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -18,53 +22,69 @@ function Signup() {
 
     const users = JSON.parse(localStorage.getItem("users")) || [];
 
-    // Check if user already exists
-    const userExists = users.some((user) => user.email === formData.email);
+    const userExists = users.find((user) => user.email === formData.email);
     if (userExists) {
-      alert("User already exists! Please log in.");
-      navigate("/login");
+      alert("User already exists with this email.");
       return;
     }
 
-    // Add new user
-    users.push(formData);
+    // Save new user
+    const newUser = { ...formData };
+    users.push(newUser);
     localStorage.setItem("users", JSON.stringify(users));
 
-    alert("Signup successful! You can now log in.");
-    navigate("/login");
+    // ✅ Auto-login
+    login(newUser);
+
+    alert("Signup successful! You are now logged in.");
+    navigate("/");
   };
 
   return (
-    <div>
-      <h2>Signup</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="name"
-          placeholder="Full Name"
-          value={formData.name}
-          onChange={handleChange}
-          required
-        /><br/>
-        <input
-          type="email"
-          name="email"
-          placeholder="Email Address"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        /><br/>
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={formData.password}
-          onChange={handleChange}
-          required
-        /><br/>
-        <button type="submit">Sign Up</button>
-      </form>
-    </div>
+    <Container className="mt-5" style={{ maxWidth: "400px" }}>
+      <h2 className="text-center mb-4">Sign Up</h2>
+      <Form onSubmit={handleSubmit}>
+        <Form.Group controlId="formName" className="mb-3">
+          <Form.Label>Full Name</Form.Label>
+          <Form.Control
+            type="text"
+            name="name"
+            placeholder="Enter full name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
+
+        <Form.Group controlId="formEmail" className="mb-3">
+          <Form.Label>Email</Form.Label>
+          <Form.Control
+            type="email"
+            name="email"
+            placeholder="Enter email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
+
+        <Form.Group controlId="formPassword" className="mb-3">
+          <Form.Label>Password</Form.Label>
+          <Form.Control
+            type="password"
+            name="password"
+            placeholder="Enter password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
+        </Form.Group>
+
+        <Button variant="primary" type="submit" className="w-100">
+          Sign Up
+        </Button>
+      </Form>
+    </Container>
   );
 }
 

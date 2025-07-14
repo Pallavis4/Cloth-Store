@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Container, Row, Col, Card, Button, Form, Badge } from "react-bootstrap";
 import { useWishlist } from "./WishlistContext";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
+import { AuthContext } from "./context/AuthContext";
 
 import tiedhaltercorset from "./assets/tiedhaltercorset.webp";
 import printedmeshcorsettop from "./assets/printedmeshcorsettop.webp";
@@ -20,19 +21,18 @@ const pastelColors = ["Light Pink", "Powder Blue", "Off White", "Lavender", "Pea
 
 function CorsetPage({ cart, setCart }) {
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
+  const { user } = useContext(AuthContext); // ✅ use login state
 
   const [selectedSize, setSelectedSize] = useState({});
   const [selectedColor, setSelectedColor] = useState({});
   const [quantity, setQuantity] = useState({});
 
   const handleToggleWishlist = (product) => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-
-    if (!isLoggedIn) {
-      alert("Please log in or sign up to use the wishlist feature.");
+    if (!user) {
+      alert("Please log in to add to wishlist.");
       return;
     }
-  
+
     const isWishlisted = wishlist.some(item => item.id === product.id);
     if (isWishlisted) {
       removeFromWishlist(product.id);

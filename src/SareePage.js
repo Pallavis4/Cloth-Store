@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Container, Row, Col, Card, Button, Form, Badge } from "react-bootstrap";
 import { useWishlist } from "./WishlistContext";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
+import { AuthContext } from "./context/AuthContext";
 
 import saree1 from "./assets/sari1.png";
 import saree2 from "./assets/sari2.png";
@@ -20,6 +21,7 @@ const colors = ["Red", "Blue", "Green", "Beige", "Pink"];
 
 function SareePage({ cart, setCart }) {
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
+  const { user } = useContext(AuthContext);
 
   const [selectedSize, setSelectedSize] = useState({});
   const [selectedColor, setSelectedColor] = useState({});
@@ -59,20 +61,21 @@ function SareePage({ cart, setCart }) {
   };
 
   const handleToggleWishlist = (product) => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-
-  if (!isLoggedIn) {
-    alert("Please log in or sign up to use the wishlist feature.");
-    return;
+    if (!user) {
+      alert("Please log in or sign up to use the wishlist feature.");
+      return;
+    }
+  
+    const isWishlisted = wishlist.some(item => item.id === product.id);
+    if (isWishlisted) {
+      removeFromWishlist(product.id);
+    } else {
+      addToWishlist(product);
+    }
   }
 
-  const isWishlisted = wishlist.some(item => item.id === product.id);
-  if (isWishlisted) {
-    removeFromWishlist(product.id);
-  } else {
-    addToWishlist(product);
-  }
-  };
+  
+  
 
   return (
     <Container className="mt-4">

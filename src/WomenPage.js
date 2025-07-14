@@ -2,6 +2,7 @@ import React from "react";
 import { Container, Row, Col, Card } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import "./styles.css"; // Custom styles for hover effects
+import { AuthContext } from "./context/AuthContext";
 
 // Image imports
 import Bodycon_dress from "./assets/Bodycon_dress.webp";

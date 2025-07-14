@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
+import { AuthContext } from "./context/AuthContext";
 
 const WishlistContext = createContext();
 

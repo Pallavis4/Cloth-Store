@@ -1,32 +1,35 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Container, Row, Col, Card, Button, Form, Badge } from "react-bootstrap";
 import { useWishlist } from "./WishlistContext";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
+import { AuthContext } from "./context/AuthContext";
 
-import skinnyjeans from "./assets/jeans1.png";
-import rippedjeans from "./assets/jeans2.png";
-import straightfitjeans from "./assets/jeans3.png";
-import momjeans from "./assets/jeans5.png";
+// Sample images (replace with your actual paths)
+import gym1 from "./assets/gym1.png";
+import gym2 from "./assets/gym2.png";
+import gym3 from "./assets/gym3.png";
+import gym4 from "./assets/gym4.png";
 
-const jeansProducts = [
-  { id: 1, name: "Skinny Jeans", price: 1499, discount: 10, image: skinnyjeans, rating: 4.5, reviews: 42 },
-  { id: 2, name: "Ripped Jeans", price: 1699, discount: 15, image: rippedjeans, rating: 4.3, reviews: 35 },
-  { id: 3, name: "Straight Fit Jeans", price: 1799, discount: 20, image: straightfitjeans, rating: 4.6, reviews: 48 },
-  { id: 4, name: "Mom Jeans", price: 1599, discount: 12, image: momjeans, rating: 4.7, reviews: 51 },
+const gymProducts = [
+  { id: 1, name: "Gym Set 1", price: 999, discount: 15, image: gym1, rating: 4.4, reviews: 20 },
+  { id: 2, name: "Gym Top 2", price: 899, discount: 10, image: gym2, rating: 4.2, reviews: 15 },
+  { id: 3, name: "Yoga Leggings", price: 1299, discount: 20, image: gym3, rating: 4.7, reviews: 30 },
+  { id: 4, name: "Sports Bra", price: 799, discount: 12, image: gym4, rating: 4.5, reviews: 18 },
 ];
 
-const sizes = ["28", "30", "32", "34", "36", "38"];
-const colors = ["Black", "Blue", "Dark Blue", "Grey", "White"];
+const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
+const colors = ["Black", "Gray", "Pink", "Blue", "White"];
 
-function JeansPage({ cart, setCart }) {
+function GymPage({ cart, setCart }) {
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
+  const { user } = useContext(AuthContext); // ✅ context-based login check
 
   const [selectedSize, setSelectedSize] = useState({});
   const [selectedColor, setSelectedColor] = useState({});
   const [quantity, setQuantity] = useState({});
 
   const isInCart = (product) => {
-    return cart.some(item =>
+    return cart?.some(item =>
       item.id === product.id &&
       item.size === (selectedSize[product.id] || sizes[0]) &&
       item.color === (selectedColor[product.id] || colors[0])
@@ -38,7 +41,7 @@ function JeansPage({ cart, setCart }) {
       ...product,
       size: selectedSize[product.id] || sizes[0],
       color: selectedColor[product.id] || colors[0],
-      quantity: quantity[product.id] || 1
+      quantity: quantity[product.id] || 1,
     };
 
     setCart(prevCart => {
@@ -59,33 +62,33 @@ function JeansPage({ cart, setCart }) {
   };
 
   const handleToggleWishlist = (product) => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
+    if (!user) {
+      alert("Please log in or sign up to use the wishlist feature.");
+      return;
+    }
 
-  if (!isLoggedIn) {
-    alert("Please log in or sign up to use the wishlist feature.");
-    return;
-  }
-
-  const isWishlisted = wishlist.some(item => item.id === product.id);
-  if (isWishlisted) {
-    removeFromWishlist(product.id);
-  } else {
-    addToWishlist(product);
-  }
+    const isWishlisted = wishlist.some(item => item.id === product.id);
+    if (isWishlisted) {
+      removeFromWishlist(product.id);
+    } else {
+      addToWishlist(product);
+    }
   };
 
   return (
     <Container className="mt-4">
-      <h2 className="text-center text-primary">Explore Jeans Collection</h2>
+      <h2 className="text-center text-primary">Shop Activewear for Women</h2>
       <Row>
-        {jeansProducts.map((product) => {
-          const isWishlisted = wishlist.some(item => item.id === product.id);
+        {gymProducts.map((product) => {
+          const isWishlisted = wishlist?.some(item => item.id === product.id);
           const inCart = isInCart(product);
 
           return (
             <Col key={product.id} md={3} className="mb-4">
               <Card className="shadow position-relative">
-                {/* Heart Icon */}
+                <Card.Img variant="top" src={product.image} alt={product.name} style={{ height: "350px", objectFit: "cover" }} />
+
+                {/* Wishlist Heart Icon */}
                 <div
                   onClick={() => handleToggleWishlist(product)}
                   style={{
@@ -96,57 +99,51 @@ function JeansPage({ cart, setCart }) {
                     color: isWishlisted ? "red" : "white",
                     cursor: "pointer",
                     textShadow: "0 0 5px rgba(0,0,0,0.6)",
-                    zIndex: 1
+                    zIndex: 1,
                   }}
                 >
                   {isWishlisted ? <FaHeart /> : <FaRegHeart />}
                 </div>
 
-                <Card.Img variant="top" src={product.image} alt={product.name} style={{ height: "350px", objectFit: "cover" }} />
                 <Card.Body>
                   <Card.Title>{product.name}</Card.Title>
                   <Card.Text>
                     <strong>Price:</strong> ₹{product.price}{" "}
                     <span className="text-danger">({product.discount}% OFF)</span><br />
-                    <Badge bg="success">{product.rating} ★</Badge>{" "}
-                    <span>({product.reviews} Reviews)</span>
+                    <Badge bg="success">{product.rating} ★</Badge> <span>({product.reviews} Reviews)</span>
                   </Card.Text>
 
-                  {/* Size Selection */}
-                  <Form.Group className="mb-3">
+                  <Form.Group className="mb-2">
                     <Form.Label>Size:</Form.Label>
-                    <Form.Select
-                      value={selectedSize[product.id] || ""}
-                      onChange={(e) =>
-                        setSelectedSize({ ...selectedSize, [product.id]: e.target.value })
-                      }
-                    >
-                      <option value="">Select Size</option>
+                    <div>
                       {sizes.map((size) => (
-                        <option key={size} value={size}>{size}</option>
+                        <Button
+                          key={size}
+                          variant={selectedSize[product.id] === size ? "dark" : "light"}
+                          onClick={() => setSelectedSize({ ...selectedSize, [product.id]: size })}
+                          className="me-2 mb-1"
+                        >
+                          {size}
+                        </Button>
                       ))}
-                    </Form.Select>
+                    </div>
                   </Form.Group>
 
-                  {/* Color Selection */}
-                  <Form.Group className="mb-3">
+                  <Form.Group className="mb-2">
                     <Form.Label>Color:</Form.Label>
-                    <div className="d-flex">
+                    <div className="d-flex flex-wrap">
                       {colors.map((color) => (
                         <div
                           key={color}
-                          onClick={() =>
-                            setSelectedColor({ ...selectedColor, [product.id]: color })
-                          }
+                          onClick={() => setSelectedColor({ ...selectedColor, [product.id]: color })}
                           style={{
-                            backgroundColor: color.toLowerCase().replace(/\s/g, ''),
+                            backgroundColor: color.toLowerCase(),
                             width: "30px",
                             height: "30px",
                             borderRadius: "5px",
                             marginRight: "8px",
-                            border: selectedColor[product.id] === color
-                              ? "2px solid black"
-                              : "1px solid #ccc",
+                            marginBottom: "5px",
+                            border: selectedColor[product.id] === color ? "2px solid black" : "1px solid #ccc",
                             cursor: "pointer",
                           }}
                         />
@@ -154,7 +151,6 @@ function JeansPage({ cart, setCart }) {
                     </div>
                   </Form.Group>
 
-                  {/* Quantity Input */}
                   <Form.Group className="mb-3">
                     <Form.Label>Quantity:</Form.Label>
                     <Form.Control
@@ -172,7 +168,7 @@ function JeansPage({ cart, setCart }) {
                       variant={inCart ? "secondary" : "primary"}
                       onClick={() => handleAddToCart(product)}
                     >
-                      {inCart ? "In Cart" : "Add to Cart"}
+                      {inCart ? "Update in Cart" : "Add to Cart"}
                     </Button>
                     <Button variant="success">Buy Now</Button>
                   </div>
@@ -186,4 +182,4 @@ function JeansPage({ cart, setCart }) {
   );
 }
 
-export default JeansPage;
+export default GymPage;

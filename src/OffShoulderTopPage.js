@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState,  useContext} from "react";
 import { Container, Row, Col, Card, Button, Form, Badge } from "react-bootstrap";
 import { useWishlist } from "./WishlistContext";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
+import { AuthContext } from "./context/AuthContext";
 
 import offshoulder1 from "./assets/offs1.png";
 import offshoulder2 from "./assets/offs2.png";
@@ -20,6 +21,7 @@ const colors = ["Black", "White", "Red", "Blue", "Yellow"];
 
 function OffShoulderTopPage({ cart, setCart }) {
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
+  const { user } = useContext(AuthContext);
 
   const [selectedSize, setSelectedSize] = useState({});
   const [selectedColor, setSelectedColor] = useState({});
@@ -59,19 +61,17 @@ function OffShoulderTopPage({ cart, setCart }) {
   };
 
   const handleToggleWishlist = (product) => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-
-  if (!isLoggedIn) {
-    alert("Please log in or sign up to use the wishlist feature.");
-    return;
-  }
-
-  const isWishlisted = wishlist.some(item => item.id === product.id);
-  if (isWishlisted) {
-    removeFromWishlist(product.id);
-  } else {
-    addToWishlist(product);
-  }
+    if (!user) {
+      alert("Please log in or sign up to use the wishlist feature.");
+      return;
+    }
+  
+    const isWishlisted = wishlist.some(item => item.id === product.id);
+    if (isWishlisted) {
+      removeFromWishlist(product.id);
+    } else {
+      addToWishlist(product);
+    }
   };
 
   return (

@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Container, Row, Col, Card, Button, Form, Badge } from "react-bootstrap";
 import { useWishlist } from "./WishlistContext";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
+import { AuthContext } from "./context/AuthContext";
+import { useContext } from "react";
 
 import kurti1 from "./assets/kurta1.png";
 import kurti2 from "./assets/kurta2.png";
@@ -20,7 +22,7 @@ const colors = ["Blue", "Green", "Yellow", "White", "Pink"];
 
 function KurtiPage({ cart, setCart }) {
   const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
-
+  const { user } = useContext(AuthContext); 
   const [selectedSize, setSelectedSize] = useState({});
   const [selectedColor, setSelectedColor] = useState({});
   const [quantity, setQuantity] = useState({});
@@ -59,9 +61,7 @@ function KurtiPage({ cart, setCart }) {
   };
 
   const handleToggleWishlist = (product) => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn");
-
-    if (!isLoggedIn) {
+    if (!user) {
       alert("Please log in or sign up to use the wishlist feature.");
       return;
     }
